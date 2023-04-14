@@ -125,12 +125,13 @@ class HipFunctions(GPUBackend):
         :returns: A ctypes structure that can be passed to the HIP function.
         :rtype: ctypes.Structure
         """
-        
         logging.debug("HipFunction ready_argument_list called")
+
         ctype_args = []
         data_ctypes = None
         for arg in arguments:
             dtype_str = str(arg.dtype)
+            # Allocate space on device for array and convert to ctypes
             if isinstance(arg, np.ndarray):
                 if dtype_str in dtype_map.keys():
                     device_ptr = hip.hipMalloc(arg.nbytes)
@@ -138,7 +139,8 @@ class HipFunctions(GPUBackend):
                     hip.hipMemcpy_htod(device_ptr, data_ctypes, arg.nbytes)
                     ctype_args.append(device_ptr)
                 else:
-                    raise TypeError("unknown dtype for ndarray")        
+                    raise TypeError("unknown dtype for ndarray")  
+            # Convert valid non-array arguments to ctypes      
             elif isinstance(arg, np.generic):
                 data_ctypes = dtype_map[dtype_str](arg)
                 ctype_args.append(data_ctypes)  
