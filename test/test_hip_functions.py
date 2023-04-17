@@ -26,7 +26,7 @@ def test_ready_argument_list():
     dev = kt_hip.HipFunctions(0)
     gpu_args = dev.ready_argument_list(arguments)
     
-    assert isinstance(gpu_args[0], ctypes.POINTER(ctypes.c_float))
+    assert isinstance(gpu_args[0], ctypes.POINTER(ctypes.c_int))
     assert isinstance(gpu_args[1], ctypes.c_int32)
     assert isinstance(gpu_args[2], ctypes.POINTER(ctypes.c_float))
     assert isinstance(gpu_args[3], ctypes.c_bool)
