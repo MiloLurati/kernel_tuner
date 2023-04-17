@@ -297,8 +297,8 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_htod called")
         print("HipFunction memcpy_htod called")
-        dtype_str = str(src.dtype)
-        hip.hipMemcpy_htod(dest, ctypes.byref(src.ctypes), ctypes.sizeof(dtype_map[dtype_str]) * src.size)
+        address = src.ctypes.data
+        hip.hipMemcpy_htod(dest, ctypes.c_void_p(address), src.nbytes)
 
     def copy_constant_memory_args(self, cmem_args):
         """adds constant memory arguments to the most recently compiled module
