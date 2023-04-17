@@ -26,10 +26,10 @@ def test_ready_argument_list():
     dev = kt_hip.HipFunctions(0)
     gpu_args = dev.ready_argument_list(arguments)
     
-    assert isinstance(gpu_args.filed0, ctypes.POINTER(ctypes.c_float))
-    assert isinstance(gpu_args.filed1, ctypes.c_int32)
-    assert isinstance(gpu_args.filed2, ctypes.POINTER(ctypes.c_float))
-    assert isinstance(gpu_args.filed3, ctypes.c_bool)
+    assert isinstance(gpu_args.field0, ctypes.POINTER(ctypes.c_float))
+    assert isinstance(gpu_args.field1, ctypes.c_int32)
+    assert isinstance(gpu_args.field2, ctypes.POINTER(ctypes.c_float))
+    assert isinstance(gpu_args.field3, ctypes.c_bool)
 
 @skip_if_no_pyhip
 def test_compile():
