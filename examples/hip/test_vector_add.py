@@ -9,6 +9,7 @@ def test_vector_add():
     #Check pyhip is installed and if a HIP capable device is present, if not skip the test
     try:
         import pyhip as hip
+        device = hip.getDevice()
         hipProps = hip.hipGetDeviceProperties(device)
         name = hipProps._name.decode('utf-8')
         max_threads = hipProps.maxThreadsPerBlock
