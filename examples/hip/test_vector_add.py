@@ -14,7 +14,7 @@ try:
     name = hipProps._name.decode('utf-8')
     max_threads = hipProps.maxThreadsPerBlock
     print(f'{name} with {max_threads} max threads per block')
-except (ImportError, Exception):
+except ImportError:
     pytest.skip("PyHIP not installed or no HIP device detected")
 
 def test_vector_add():
