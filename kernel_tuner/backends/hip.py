@@ -261,6 +261,8 @@ class HipFunctions(GPUBackend):
         :type size: int
 
         """
+        logging.debug("HipFunction memset called")
+        print("HipFunction memset called")
         ctypes_value = ctypes.c_int(value)
         ctypes_size = ctypes.c_size_t(size)
         status = _libhip.hipMemset(allocation, ctypes_value, ctypes_size)
@@ -276,6 +278,7 @@ class HipFunctions(GPUBackend):
         :type src: ctypes ptr
         """
         logging.debug("HipFunction memcpy_dtoh called")
+        print("HipFunction memcpy_dtoh called")
         dtype_str = str(src.dtype)
         hip.hipMemcpy_dtoh(ctypes.byref(dest.ctypes), src, ctypes.sizeof(dtype_map[dtype_str]) * src.size)
 
@@ -289,6 +292,7 @@ class HipFunctions(GPUBackend):
         :type src: numpy.ndarray
         """
         logging.debug("HipFunction memcpy_htod called")
+        print("HipFunction memcpy_htod called")
         dtype_str = str(src.dtype)
         hip.hipMemcpy_htod(dest, ctypes.byref(src.ctypes), ctypes.sizeof(dtype_map[dtype_str]) * src.size)
 
@@ -303,6 +307,7 @@ class HipFunctions(GPUBackend):
         :type cmem_args: dict( string: numpy.ndarray, ... )
         """
         logging.debug("HipFunction copy_constant_memory_args called")
+        print("HipFunction copy_constant_memory_args called")
         logging.debug("current module: " + str(self.current_module))
 
         for k, v in cmem_args.items():
@@ -316,11 +321,13 @@ class HipFunctions(GPUBackend):
     def copy_shared_memory_args(self, smem_args):
         """add shared memory arguments to the kernel"""
         logging.debug("HipFunction copy_shared_memory_args called")
+        print("HipFunction copy_shared_memory_args called")
         self.smem_size = smem_args["size"]
 
     def copy_texture_memory_args(self, texmem_args):
         """This method must implement the allocation and copy of texture memory to the GPU."""
         logging.debug("HipFunction copy_texture_memory_args called")
+        print("HipFunction copy_texture_memory_args called")
         raise NotImplementedError("HIP backend does not support texture memory") # NOT SUPPORTED?
 
     units = {"time": "ms"}
