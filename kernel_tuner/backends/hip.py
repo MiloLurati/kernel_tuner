@@ -128,8 +128,8 @@ class HipFunctions(GPUBackend):
             The order should match the argument list on the HIP function.
             Allowed values are np.ndarray, and/or np.int32, np.float32, and so on.
         :type arguments: list(numpy objects)
-        :returns: A ctypes structure that can be passed to the HIP function.
-        :rtype: ctypes.Structure
+        :returns: List of ctypes arguments to be passed to the HIP function.
+        :rtype: list of ctypes
         """
         logging.debug("HipFunction ready_argument_list called")
 
@@ -151,13 +151,6 @@ class HipFunctions(GPUBackend):
                 data_ctypes = dtype_map[dtype_str](arg)
                 ctype_args.append(data_ctypes)  
         
-        # Determine the types of the fields in the structure
-        field_types = [type(x) for x in ctype_args]
-        # Define a new ctypes structure with the inferred layout
-        class ArgListStructure(ctypes.Structure):
-            _fields_ = [(f'field{i}', t) for i, t in enumerate(field_types)]
-        
-        #return ArgListStructure(*ctype_args)
         return ctype_args
     
     
@@ -229,7 +222,7 @@ class HipFunctions(GPUBackend):
         :param gpu_args: A list of arguments to the kernel, order should match the
             order in the code. Allowed values are either variables in global memory
             or single values passed by value.
-        :type gpu_args: ctypes.Structure
+        :type gpu_args: list of ctypes
 
         :param threads: A tuple listing the number of threads in each dimension of
             the thread block
@@ -289,7 +282,7 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_dtoh called")
         print("HipFunction memcpy_dtoh called")
-        
+
         address = dest.ctypes.data
         hip.hipMemcpy_dtoh(ctypes.c_void_p(address), src, dest.nbytes)
 
