@@ -289,7 +289,9 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_dtoh called")
         print("HipFunction memcpy_dtoh called")
-        hip.hipMemcpy_dtoh(ctypes.byref(dest.ctypes), src, dest.nbytes)
+        
+        address = dest.ctypes.data
+        hip.hipMemcpy_dtoh(ctypes.c_void_p(address), src, dest.nbytes)
 
     def memcpy_htod(self, dest, src):
         """perform a host to device memory copy
