@@ -9,7 +9,7 @@ import pytest
 try:
     from pyhip import hip, hiprtc
 except ImportError:
-    pytest.skip("PyHIP not installed or no HIP device detected or PYTHONPATH does not includes PyHIP")
+    pytest.skip("PyHIP not installed or PYTHONPATH does not includes PyHIP")
     hip = None
     hiprtc = None
 
