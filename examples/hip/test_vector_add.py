@@ -7,7 +7,13 @@ import pytest
 
 #Check pyhip is installed and if a HIP capable device is present, if not skip the test
 try:
-    print("try to import pyhip")
+    from pyhip import hip, hiprtc
+except ImportError:
+    print("PyHIP not installed or no HIP device detected or PYTHONPATH does not includes PyHIP")
+    hip = None
+    hiprtc = None
+
+try:
     import pyhip as hip
     #device = hip.hipGetDevice()
     hipProps = hip.hipGetDeviceProperties(0)
