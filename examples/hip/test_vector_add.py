@@ -5,18 +5,19 @@ import numpy
 from kernel_tuner import run_kernel
 import pytest
 
+#Check pyhip is installed and if a HIP capable device is present, if not skip the test
+try:
+    print("try to import pyhip")
+    import pyhip as hip
+    device = hip.getDevice()
+    hipProps = hip.hipGetDeviceProperties(device)
+    name = hipProps._name.decode('utf-8')
+    max_threads = hipProps.maxThreadsPerBlock
+    print(f'{name} with {max_threads} max threads per block')
+except (ImportError, Exception):
+    pytest.skip("PyHIP not installed or no HIP device detected")
+
 def test_vector_add():
-    #Check pyhip is installed and if a HIP capable device is present, if not skip the test
-    try:
-        print("try to import pyhip")
-        import pyhip as hip
-        device = hip.getDevice()
-        hipProps = hip.hipGetDeviceProperties(device)
-        name = hipProps._name.decode('utf-8')
-        max_threads = hipProps.maxThreadsPerBlock
-        print(f'{name} with {max_threads} max threads per block')
-    except (ImportError, Exception):
-        pytest.skip("PyHIP not installed or no HIP device detected")
 
     kernel_string = """
     __global__ void vector_add(float *c, float *a, float *b, int n) {
