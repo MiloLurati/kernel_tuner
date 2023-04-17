@@ -9,19 +9,9 @@ import pytest
 try:
     from pyhip import hip, hiprtc
 except ImportError:
-    print("PyHIP not installed or no HIP device detected or PYTHONPATH does not includes PyHIP")
+    pytest.skip("PyHIP not installed or no HIP device detected or PYTHONPATH does not includes PyHIP")
     hip = None
     hiprtc = None
-
-try:
-    import pyhip as hip
-    #device = hip.hipGetDevice()
-    hipProps = hip.hipGetDeviceProperties(0)
-    name = hipProps._name.decode('utf-8')
-    max_threads = hipProps.maxThreadsPerBlock
-    print(f'{name} with {max_threads} max threads per block')
-except ImportError:
-    pytest.skip("PyHIP not installed or no HIP device detected")
 
 def test_vector_add():
 
