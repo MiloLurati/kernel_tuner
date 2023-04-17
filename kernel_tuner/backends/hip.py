@@ -128,8 +128,8 @@ class HipFunctions(GPUBackend):
             The order should match the argument list on the HIP function.
             Allowed values are np.ndarray, and/or np.int32, np.float32, and so on.
         :type arguments: list(numpy objects)
-        :returns: List of ctypes arguments to be passed to the HIP function.
-        :rtype: list of ctypes
+        :returns: Ctypes structure of arguments to be passed to the HIP function.
+        :rtype: ctypes structure
         """
         logging.debug("HipFunction ready_argument_list called")
 
@@ -227,10 +227,10 @@ class HipFunctions(GPUBackend):
         :param func: A PyHIP kernel compiled for this specific kernel configuration
         :type func: ctypes pionter
 
-        :param gpu_args: A list of arguments to the kernel, order should match the
+        :param gpu_args: A ctypes structure of arguments to the kernel, order should match the
             order in the code. Allowed values are either variables in global memory
             or single values passed by value.
-        :type gpu_args: list of ctypes
+        :type gpu_args: ctypes structure
 
         :param threads: A tuple listing the number of threads in each dimension of
             the thread block
@@ -241,7 +241,7 @@ class HipFunctions(GPUBackend):
         :type grid: tuple(int, int, int)
         """
         logging.debug("HipFunction run_kernel called")
-        
+
         if stream is None:
             stream = self.stream
 
