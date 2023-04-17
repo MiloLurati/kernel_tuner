@@ -9,8 +9,8 @@ import pytest
 try:
     print("try to import pyhip")
     import pyhip as hip
-    device = hip.hipGetDevice()
-    hipProps = hip.hipGetDeviceProperties(device)
+    #device = hip.hipGetDevice()
+    hipProps = hip.hipGetDeviceProperties(0)
     name = hipProps._name.decode('utf-8')
     max_threads = hipProps.maxThreadsPerBlock
     print(f'{name} with {max_threads} max threads per block')
