@@ -150,9 +150,17 @@ class HipFunctions(GPUBackend):
             elif isinstance(arg, np.generic):
                 data_ctypes = dtype_map[dtype_str](arg)
                 ctype_args.append(data_ctypes)  
+
+        # Determine the types of the fields in the structure
+        field_types = [type(x) for x in ctype_args]
+        # Define a new ctypes structure with the inferred layout
+        class ArgListStructure(ctypes.Structure):
+            _fields_ = [(f'field{i}', t) for i, t in enumerate(field_types)]
+            def __getitem__(self, key):
+                return self._fields_[key]
         
-        return ctype_args
-    
+        return ArgListStructure(*ctype_args)
+            
     
     def compile(self, kernel_instance):
         """call the HIP compiler to compile the kernel, return the function
@@ -233,16 +241,9 @@ class HipFunctions(GPUBackend):
         :type grid: tuple(int, int, int)
         """
         logging.debug("HipFunction run_kernel called")
+        
         if stream is None:
             stream = self.stream
-
-        # Determine the types of the fields in the structure
-        field_types = [type(x) for x in gpu_args]
-        # Define a new ctypes structure with the inferred layout
-        class ArgListStructure(ctypes.Structure):
-            _fields_ = [(f'field{i}', t) for i, t in enumerate(field_types)]
-        
-        gpu_args = ArgListStructure(*gpu_args)
 
         hip.hipModuleLaunchKernel(func, 
                                   grid[0], grid[1], grid[2], 
