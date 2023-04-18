@@ -266,12 +266,9 @@ class HipFunctions(GPUBackend):
 
         """
         logging.debug("HipFunction memset called")
-        print("HipFunction memset called")
+        
         ctypes_value = ctypes.c_int(value)
         ctypes_size = ctypes.c_size_t(size)
-        print(f'ctypes_value -> {type(ctypes_value)}')
-        print(f'ctypes_size -> {type(ctypes_size)}')
-        print(f'allocation -> {type(allocation)}')
         status = _libhip.hipMemset(allocation, ctypes_value, ctypes_size)
         hip.hipCheckStatus(status)
 

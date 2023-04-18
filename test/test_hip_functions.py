@@ -52,7 +52,7 @@ def test_compile():
 
 
 @skip_if_no_pyhip
-def test_memset():
+def test_memset_and_memcpy_dtoh():
     a = [1, 2, 3, 4]
     x = np.array(a).astype(np.int8)
     x_d = hip.hipMalloc(x.nbytes)
@@ -66,34 +66,18 @@ def test_memset():
     assert all(output == np.full(4, 4))
 
 @skip_if_no_pyhip
-def test_memcpy_dtoh():
-    a = [23, 23, 23, 23]
-    x = np.array(a).astype(np.float32)
+def test_memcpy_htod():
+    a = [1, 2, 3, 4]
+    src = np.array(a).astype(np.float32)
+    x = np.array(a).astype(np.int8)
     x_d = hip.hipMalloc(x.nbytes)
     output = np.empty(4, dtype=np.float32)
 
     Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memset(x_d, 23, x.nbytes)
-    Hipfunc.memcpy_dtoh(output, x_d)
-
-    print(a)
-    print(output)
+    Hipfunc.memcpy_dtoh(a, x_d)
+    Hipfunc.memcpy_htod(x_d, output)
 
     assert all(output == a)
-    assert all(x == a)
-
-
-@skip_if_no_pyhip
-def test_memcpy_htod():
-    a = [1, 2, 3, 4]
-    src = np.array(a).astype(np.float32)
-    x = np.zeros_like(src)
-    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
-    Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memcpy_htod(x_c, src)
-
-    assert all(x_c.numpy == a)
 
 @skip_if_no_pyhip
 def test_benchmark(env):
