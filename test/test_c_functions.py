@@ -192,7 +192,7 @@ def test_memset():
     arg = Argument(numpy=x, ctypes=x_c)
 
     cfunc = CFunctions()
-    cfunc.memset(arg, 1, x.nbytes)
+    cfunc.memset(arg, 0, x.nbytes)
 
     output = np.ctypeslib.as_array(x_c, shape=(4,))
 
