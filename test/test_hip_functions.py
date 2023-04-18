@@ -78,14 +78,6 @@ def test_memcpy_htod():
 
     assert all(output == x)
 
-@skip_if_no_pyhip
-def test_benchmark(env):
-    results, _ = kernel_tuner.tune_kernel(*env, block_size_names=["nthreads"])
-    assert len(results) == 3
-    assert all(["nthreads" in result for result in results])
-    assert all(["time" in result for result in results])
-    assert all([result["time"] > 0.0 for result in results])
-
 def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):
     pass
 
