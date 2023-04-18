@@ -24,10 +24,16 @@ def test_ready_argument_list():
 
     arguments = [d, a, b, c]
 
+    class ArgListStructure(ctypes.Structure):
+        _fields_ = [("field0", ctypes.POINTER(ctypes.c_float)),
+                    ("field1", ctypes.c_int),
+                    ("field2", ctypes.POINTER(ctypes.c_float)),
+                    ("field3", ctypes.c_bool)]
+
     dev = kt_hip.HipFunctions(0)
     gpu_args = dev.ready_argument_list(arguments)
 
-    assert(gpu_args, ctypes.Structure)
+    assert(gpu_args, ArgListStructure)
 
 @skip_if_no_pyhip
 def test_compile():
