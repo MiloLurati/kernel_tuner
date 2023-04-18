@@ -76,7 +76,7 @@ def test_memcpy_htod():
     Hipfunc.memcpy_htod(x_d, x)
     Hipfunc.memcpy_dtoh(output, x_d)
 
-    assert all(output == a)
+    assert all(output == x)
 
 @skip_if_no_pyhip
 def test_benchmark(env):
