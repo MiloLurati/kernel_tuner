@@ -60,7 +60,7 @@ def test_memset_and_memcpy_dtoh():
     Hipfunc = kt_hip.HipFunctions()
     Hipfunc.memset(x_d, 23, x.nbytes)
 
-    output = np.empty(4, dtype=np.float32)
+    output = np.array(a)
     Hipfunc.memcpy_dtoh(output, x_d)
 
     assert all(output == np.full(4, 23))
