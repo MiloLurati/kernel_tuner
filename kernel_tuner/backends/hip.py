@@ -283,7 +283,7 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_dtoh called")
 
-        dtype_str = str(src.dtype)
+        dtype_str = str(dest.dtype)
         dest_c = dest.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
         hip.hipMemcpy_dtoh(dest_c, src, dest.nbytes)
 
