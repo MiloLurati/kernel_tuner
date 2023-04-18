@@ -61,7 +61,7 @@ def test_memset():
     Hipfunc.memset(x_c, 0, x.nbytes)
 
     output = np.empty(4, dtype=np.float32)
-    hip.memcpy_dtoh(output, x_c)
+    Hipfunc.memcpy_dtoh(output, x_c)
 
     print(output)
     assert all(output == np.zeros(4))
