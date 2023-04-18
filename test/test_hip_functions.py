@@ -60,7 +60,8 @@ def test_memset():
     Hipfunc = kt_hip.HipFunctions()
     Hipfunc.memset(x_c, 0, x.nbytes)
 
-    output = np.ctypeslib.as_array(x_c, shape=(4,))
+    output = np.empty(4, dtype=np.float32)
+    hip.memcpy_dtoh(output, x_c)
 
     print(output)
     assert all(output == np.zeros(4))
