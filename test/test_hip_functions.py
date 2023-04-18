@@ -50,8 +50,23 @@ def test_compile():
     except Exception as e:
         pytest.fail("Did not expect any exception:" + str(e))
 
+
 @skip_if_no_pyhip
 def test_memset_and_memcpy_dtoh():
+    a = [1, 2, 3, 4]
+    x = np.array(a).astype(np.float32)
+    x_d = hip.hipMalloc(x.nbytes)
+
+    Hipfunc = kt_hip.HipFunctions()
+    Hipfunc.memset(x_d, 23, x.nbytes)
+
+    output = np.empty(4, dtype=np.float32)
+    Hipfunc.memcpy_dtoh(output, x_d)
+
+    assert all(output == np.full(4, 23))
+
+@skip_if_no_pyhip
+def test_memcpy_dtoh():
     a = [23, 23, 23, 23]
     x = np.array(a).astype(np.float32)
     x_d = hip.hipMalloc(x.nbytes)
