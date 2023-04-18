@@ -273,7 +273,7 @@ class HipFunctions(GPUBackend):
         print(f'ctypes_size -> {type(ctypes_size)}')
         print(f'allocation -> {type(allocation)}')
         status = _libhip.hipMemset(allocation, ctypes_value, ctypes_size)
-        hip.hipCheckStatus(status)
+        #hip.hipCheckStatus(status)
 
     def memcpy_dtoh(self, dest, src):
         """perform a device to host memory copy
