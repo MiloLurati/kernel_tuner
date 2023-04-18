@@ -58,12 +58,12 @@ def test_memset():
     x_d = hip.hipMalloc(x.nbytes)
 
     Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memset(x_d, 23, x.nbytes)
+    Hipfunc.memset(x_d, 4, x.nbytes)
 
     output = np.empty(4, dtype=np.int)
     Hipfunc.memcpy_dtoh(output, x_d)
 
-    assert all(output == np.full(4, 23))
+    assert all(output == np.full(4, 4))
 
 @skip_if_no_pyhip
 def test_memcpy_dtoh():
