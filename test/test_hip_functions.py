@@ -3,6 +3,7 @@ import ctypes
 from .context import skip_if_no_pyhip
 
 import pytest
+import kernel_tuner
 from kernel_tuner.backends import hip as kt_hip
 from kernel_tuner.core import KernelSource, KernelInstance
 
@@ -49,6 +50,58 @@ def test_compile():
     except Exception as e:
         pytest.fail("Did not expect any exception:" + str(e))
 
+
+@skip_if_no_pyhip
+def test_memset():
+    a = [1, 2, 3, 4]
+    x = np.array(a).astype(np.float32)
+    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+
+    Hipfunc = kt_hip.HipFunctions()
+    Hipfunc.memset(x_c, 0, x.nbytes)
+
+    output = np.ctypeslib.as_array(x_c, shape=(4,))
+
+    print(output)
+    assert all(output == np.zeros(4))
+    assert all(x == np.zeros(4))
+
+@skip_if_no_pyhip
+def test_memcpy_dtoh():
+    a = [1, 2, 3, 4]
+    x = np.array(a).astype(np.float32)
+    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    output = np.zeros_like(x)
+
+    Hipfunc = kt_hip.HipFunctions()
+    Hipfunc.memcpy_dtoh(output, x_c)
+
+    print(a)
+    print(output)
+
+    assert all(output == a)
+    assert all(x == a)
+
+
+@skip_if_no_pyhip
+def test_memcpy_htod():
+    a = [1, 2, 3, 4]
+    src = np.array(a).astype(np.float32)
+    x = np.zeros_like(src)
+    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+
+    Hipfunc = kt_hip.HipFunctions()
+    Hipfunc.memcpy_htod(x_c, src)
+
+    assert all(x_c.numpy == a)
+
+@skip_if_no_pyhip
+def test_benchmark(env):
+    results, _ = kernel_tuner.tune_kernel(*env, block_size_names=["nthreads"])
+    assert len(results) == 3
+    assert all(["nthreads" in result for result in results])
+    assert all(["time" in result for result in results])
+    assert all([result["time"] > 0.0 for result in results])
 
 def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):
     pass
