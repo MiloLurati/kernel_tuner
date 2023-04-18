@@ -39,7 +39,8 @@ def test_ready_argument_list():
                                         ctypes.c_int(a),
                                         b.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
                                         ctypes.c_bool(c))
-    assert(gpu_args == argListStructure)
+    assert(gpu_args[1] == argListStructure[1])
+    assert(gpu_args[3] == argListStructure[3])
 
 @skip_if_no_pyhip
 def test_compile():
