@@ -55,7 +55,7 @@ def test_compile():
 def test_memset():
     a = [1, 2, 3, 4]
     x = np.array(a).astype(np.float32)
-    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    x_c = x.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
 
     Hipfunc = kt_hip.HipFunctions()
     Hipfunc.memset(x_c, 0, x.nbytes)
