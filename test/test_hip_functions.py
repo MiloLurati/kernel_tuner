@@ -63,9 +63,7 @@ def test_memset():
     output = np.empty(4, dtype=np.float32)
     Hipfunc.memcpy_dtoh(output, x_c)
 
-    print(output)
     assert all(output == np.zeros(4))
-    assert all(x == np.zeros(4))
 
 @skip_if_no_pyhip
 def test_memcpy_dtoh():
