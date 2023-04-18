@@ -58,7 +58,7 @@ def test_memset():
     x_d = hip.hipMalloc(x.nbytes)
 
     Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memset(x_d, 23.0, x.nbytes)
+    Hipfunc.memset(x_d, 23, x.nbytes)
 
     output = np.empty(4, dtype=np.float32)
     Hipfunc.memcpy_dtoh(output, x_d)
