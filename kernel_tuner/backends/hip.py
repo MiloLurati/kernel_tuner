@@ -70,7 +70,7 @@ _libhip.hipEventQuery.argtypes = [ctypes.c_void_p]
 _libhip.hipModuleGetGlobal.restype = ctypes.c_int
 _libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_char_p]
 _libhip.hipMemset.restype = ctypes.c_int
-_libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_size_t]
+_libhip.hipMemset.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_size_t]
 
 
 hipSuccess = 0
