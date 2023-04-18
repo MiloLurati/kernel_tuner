@@ -74,8 +74,8 @@ def test_memcpy_htod():
     output = np.empty(4, dtype=np.float32)
 
     Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memcpy_dtoh(x_d, a)
-    Hipfunc.memcpy_htod(output, x_d)
+    Hipfunc.memcpy_htod(x_d, a)
+    Hipfunc.memcpy_dtoh(output, x_d)
 
     assert all(output == a)
 
