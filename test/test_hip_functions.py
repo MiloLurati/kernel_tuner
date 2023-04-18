@@ -54,13 +54,11 @@ def test_compile():
 @skip_if_no_pyhip
 def test_memset_and_memcpy_dtoh():
     a = [1, 2, 3, 4]
-    x = np.array(a).astype(np.float32)
-    x_d = hip.hipMalloc(x.nbytes)
+    output = np.array(a).astype(np.float32)
+    x_d = hip.hipMalloc(output.nbytes)
 
     Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memset(x_d, 23, x.nbytes)
-
-    output = np.array(a)
+    Hipfunc.memset(x_d, 23, output.nbytes)
     Hipfunc.memcpy_dtoh(output, x_d)
 
     assert all(output == np.full(4, 23))
