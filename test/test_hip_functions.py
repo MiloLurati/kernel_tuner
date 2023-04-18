@@ -33,7 +33,7 @@ def test_ready_argument_list():
     dev = kt_hip.HipFunctions(0)
     gpu_args = dev.ready_argument_list(arguments)
 
-    assert(gpu_args, ArgListStructure)
+    assert(isinstance(gpu_args, ArgListStructure))
 
 @skip_if_no_pyhip
 def test_compile():
