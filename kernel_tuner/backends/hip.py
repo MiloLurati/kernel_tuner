@@ -286,8 +286,9 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_dtoh called")
 
-        address = dest.ctypes.data
-        hip.hipMemcpy_dtoh(ctypes.c_void_p(address), src, dest.nbytes)
+        dtype_str = str(dest.dtype)
+        dest_c = dest.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
+        hip.hipMemcpy_dtoh(dest_c, src, dest.nbytes)
 
     def memcpy_htod(self, dest, src):
         """perform a host to device memory copy
@@ -300,8 +301,9 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction memcpy_htod called")
 
-        address = src.ctypes.data
-        hip.hipMemcpy_htod(dest, ctypes.c_void_p(address), src.nbytes)
+        dtype_str = str(src.dtype)
+        src_c = src.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
+        hip.hipMemcpy_htod(dest, src_c, src.nbytes)
 
     def copy_constant_memory_args(self, cmem_args):
         """adds constant memory arguments to the most recently compiled module
