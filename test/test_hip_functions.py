@@ -120,7 +120,7 @@ def test_copy_constant_memory_args():
     print(f'gpu_args.field0 = {gpu_args.field0}')
     dev.run_kernel(kernel, gpu_args, threads, grid)
     print(f'gpu_args.field0 = {gpu_args.field0}')
-    dev.memcpy_dtoh(output, gpu_args[0])
+    dev.memcpy_dtoh(output, gpu_args.field0)
     for i, arg in enumerate(output):
         print(f'output[{i}] = {arg}')
     assert(my_constant_data == output)
