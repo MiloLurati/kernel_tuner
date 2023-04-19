@@ -104,24 +104,25 @@ def test_copy_constant_memory_args():
     }
     """
 
-    my_constant_data = np.full(100, 23).astype(np.float32)
-    cmem_args = {'my_constant_data': my_constant_data}
-
     kernel_name = "copy_data_kernel"
     kernel_sources = KernelSource(kernel_name, kernel_string, "HIP")
     kernel_instance = KernelInstance(kernel_name, kernel_sources, kernel_string, [], None, None, dict(), [])
     dev = kt_hip.HipFunctions(0)
     kernel = dev.compile(kernel_instance)
+
+    my_constant_data = np.full(100, 23).astype(np.float32)
+    cmem_args = {'my_constant_data': my_constant_data}
     dev.copy_constant_memory_args(cmem_args)
+
     output = np.full(100, 0).astype(np.float32)
     gpu_args = dev.ready_argument_list([output])
+    
     threads = (100, 1, 1)
     grid = (1, 1, 1)
-    print(f'gpu_args.field0 = {gpu_args.field0}')
     dev.run_kernel(kernel, gpu_args, threads, grid)
-    print(f'gpu_args.field0 = {gpu_args.field0}')
+
     dev.memcpy_dtoh(output, gpu_args.field0)
-    print(f'output = {output}')
+
     assert(my_constant_data == output).all()
 
 def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):

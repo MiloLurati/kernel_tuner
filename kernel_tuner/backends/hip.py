@@ -145,7 +145,6 @@ class HipFunctions(GPUBackend):
                     device_ptr = hip.hipMalloc(arg.nbytes)
                     data_ctypes = arg.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
                     hip.hipMemcpy_htod(device_ptr, data_ctypes, arg.nbytes)
-                    print(f'device_ptr = {device_ptr}')
                     ctype_args.append(device_ptr)
                 else:
                     raise TypeError("unknown dtype for ndarray")  
@@ -316,8 +315,6 @@ class HipFunctions(GPUBackend):
         :type cmem_args: dict( string: numpy.ndarray, ... )
         """
         logging.debug("HipFunction copy_constant_memory_args called")
-        logging.debug("current module: " + str(self.current_module))
-        print(f'current module: {self.current_module}')
 
         for k, v in cmem_args.items():
             #Format arguments, call hipModuleGetGlobal, and check return status
@@ -329,19 +326,12 @@ class HipFunctions(GPUBackend):
             size_kernel_ptr = ctypes.POINTER(ctypes.c_size_t)(size_kernel)
             status = _libhip.hipModuleGetGlobal(symbol_ptr, size_kernel_ptr, self.current_module, symbol_string)
             hip.hipCheckStatus(status)
-            print(f'symbol_ptr = {symbol_ptr}')
-            print(f'symbol_ptr.contents = {symbol_ptr.contents}')
-            print(f'size_kernel = {size_kernel_ptr}')
-            print(f'size_kernel.contents = {size_kernel_ptr.contents}')
 
-            #Format arguments, call hipMemcpyToSymbol, and check return status
+            #Format arguments and call hipMemcpy_htod
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
-            hipMemcpyHostToDevice = 1
 
             hip.hipMemcpy_htod(symbol_ptr.contents, v_c, v.nbytes)
-            #status = _libhip.hipMemcpyToSymbol(symbol_ptr.contents, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
-            #hip.hipCheckStatus(status)
 
     def copy_shared_memory_args(self, smem_args):
         """add shared memory arguments to the kernel"""
