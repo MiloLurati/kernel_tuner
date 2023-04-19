@@ -322,7 +322,7 @@ class HipFunctions(GPUBackend):
             symbol = ctypes.c_void_p()
             symbol_ptr = ctypes.POINTER(ctypes.c_void_p)(symbol)
             size_kernel = ctypes.c_size_t(0)
-            size_kernel_ptr = ctypes.POINTER(ctypes.c_size_t)()
+            size_kernel_ptr = ctypes.POINTER(ctypes.c_size_t)(size_kernel)
             status = _libhip.hipModuleGetGlobal(symbol_ptr, size_kernel_ptr, self.current_module, symbol_string)
             hip.hipCheckStatus(status)
             print(f'symbol_ptr = {symbol_ptr}')
