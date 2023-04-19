@@ -316,16 +316,16 @@ class HipFunctions(GPUBackend):
         logging.debug("current module: " + str(self.current_module))
 
         for k, v in cmem_args.items():
-            #symbol = ctypes.c_void_p()
-            #size_kernel = ctypes.POINTER(ctypes.c_size_t)()
-            #status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, k)
-            #hip.hipCheckStatus(status)
+            symbol = ctypes.c_void_p()
+            size_kernel = ctypes.POINTER(ctypes.c_size_t)()
+            status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, k)
+            hip.hipCheckStatus(status)
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
-            #print(f'symbol = {symbol} --> {type(symbol)}')
+            print(f'symbol = {symbol} --> {type(symbol)}')
             hipMemcpyHostToDevice = 1
-            symbol_string = ctypes.c_char_p(k.encode('utf-8'))
-            status = _libhip.hipMemcpyToSymbol(symbol_string, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
+            #symbol_string = ctypes.c_char_p(k.encode('utf-8'))
+            status = _libhip.hipMemcpyToSymbol(symbol, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
             hip.hipCheckStatus(status)
 
     def copy_shared_memory_args(self, smem_args):
