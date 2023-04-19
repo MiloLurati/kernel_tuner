@@ -324,6 +324,7 @@ class HipFunctions(GPUBackend):
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
             #print(f'symbol = {symbol} --> {type(symbol)}')
             hipMemcpyHostToDevice = 1
+            print(f'k = {k}')
             status = _libhip.hipMemcpyToSymbol(k, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
             hip.hipCheckStatus(status)
 
