@@ -68,7 +68,7 @@ dtype_map = {
 _libhip.hipEventQuery.restype = ctypes.c_int
 _libhip.hipEventQuery.argtypes = [ctypes.c_void_p]
 _libhip.hipModuleGetGlobal.restype = ctypes.c_int
-_libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_char_p]
+_libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.c_void_p, ctypes.c_char_p]
 _libhip.hipMemset.restype = ctypes.c_int
 _libhip.hipMemset.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_size_t]
 
@@ -317,9 +317,7 @@ class HipFunctions(GPUBackend):
 
         for k, v in cmem_args.items():
             symbol = ctypes.POINTER(ctypes.c_void_p)()
-            my_size_t = ctypes.c_size_t(0)
-            size_kernel = ctypes.POINTER(ctypes.c_size_t)
-            size_kernel.contents = ctypes.addressof(my_size_t)
+            size_kernel = ctypes.POINTER(ctypes.c_size_t)()
             status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, str.encode(k))
             hip.hipCheckStatus(status)
             dtype_str = str(v.dtype)
