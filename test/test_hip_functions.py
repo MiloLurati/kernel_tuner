@@ -154,13 +154,13 @@ def test_copy_constant_memory_args():
 def test_smem_args(env):
     result, _ = tune_kernel(*env,
                             smem_args=dict(size="block_size_x*4"),
-                            verbose=True)
+                            verbose=True, lang="HIP")
     tune_params = env[-1]
     assert len(result) == len(tune_params["block_size_x"])
     result, _ = tune_kernel(
         *env,
         smem_args=dict(size=lambda p: p['block_size_x'] * 4),
-        verbose=True)
+        verbose=True, lang="HIP")
     tune_params = env[-1]
     assert len(result) == len(tune_params["block_size_x"])
 
