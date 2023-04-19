@@ -68,7 +68,7 @@ dtype_map = {
 _libhip.hipEventQuery.restype = ctypes.c_int
 _libhip.hipEventQuery.argtypes = [ctypes.c_void_p]
 _libhip.hipModuleGetGlobal.restype = ctypes.c_int
-_libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.c_void_p, ctypes.c_char_p]
+_libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p(ctypes.c_void_p), ctypes.POINTER(ctypes.c_size_t), ctypes.c_void_p, ctypes.c_char_p]
 _libhip.hipMemset.restype = ctypes.c_int
 _libhip.hipMemset.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_size_t]
 _libhip.hipMemcpyToSymbol.restype = ctypes.c_int
@@ -320,14 +320,15 @@ class HipFunctions(GPUBackend):
         for k, v in cmem_args.items():
             symbol_string = ctypes.c_char_p(k.encode('utf-8'))
             symbol = ctypes.c_void_p()
+            symbol_ptr = ctypes.c_void_p(symbol)
             size_kernel = ctypes.POINTER(ctypes.c_size_t)()
-            status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, symbol_string)
+            status = _libhip.hipModuleGetGlobal(symbol_ptr, size_kernel, self.current_module, symbol_string)
             hip.hipCheckStatus(status)
-            print(f'symbol = {symbol} --> {type(symbol)}')
+            print(f'symbol_ptr = {symbol_ptr}')
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
             hipMemcpyHostToDevice = 1
-            status = _libhip.hipMemcpyToSymbol(symbol, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
+            status = _libhip.hipMemcpyToSymbol(symbol_ptr, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
             hip.hipCheckStatus(status)
 
     def copy_shared_memory_args(self, smem_args):
