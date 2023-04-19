@@ -71,11 +71,11 @@ def test_memset_and_memcpy_dtoh():
     x = np.array(a).astype(np.int8)
     x_d = hip.hipMalloc(x.nbytes)
 
-    Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memset(x_d, 4, x.nbytes)
+    dev = kt_hip.HipFunctions()
+    dev.memset(x_d, 4, x.nbytes)
 
     output = np.empty(4, dtype=np.int8)
-    Hipfunc.memcpy_dtoh(output, x_d)
+    dev.memcpy_dtoh(output, x_d)
 
     assert all(output == np.full(4, 4))
 
@@ -86,9 +86,9 @@ def test_memcpy_htod():
     x_d = hip.hipMalloc(x.nbytes)
     output = np.empty(4, dtype=np.float32)
 
-    Hipfunc = kt_hip.HipFunctions()
-    Hipfunc.memcpy_htod(x_d, x)
-    Hipfunc.memcpy_dtoh(output, x_d)
+    dev = kt_hip.HipFunctions()
+    dev.memcpy_htod(x_d, x)
+    dev.memcpy_dtoh(output, x_d)
 
     assert all(output == x)
 
@@ -111,10 +111,7 @@ def test_copy_constant_memory_args():
     kernel_sources = KernelSource(kernel_name, kernel_string, "HIP")
     kernel_instance = KernelInstance(kernel_name, kernel_sources, kernel_string, [], None, None, dict(), [])
     dev = kt_hip.HipFunctions(0)
-    try:
-        kernel = dev.compile(kernel_instance)
-    except Exception as e:
-        pytest.fail("Did not expect any exception:" + str(e))
+    kernel = dev.compile(kernel_instance)
     dev.copy_constant_memory_args(cmem_args)
     output = np.full(100, 0).astype(np.float32)
     gpu_args = dev.ready_argument_list([output])

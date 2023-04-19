@@ -71,6 +71,8 @@ _libhip.hipModuleGetGlobal.restype = ctypes.c_int
 _libhip.hipModuleGetGlobal.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.c_void_p, ctypes.c_char_p]
 _libhip.hipMemset.restype = ctypes.c_int
 _libhip.hipMemset.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_size_t]
+_libhip.hipMemcpyToSymbol.restype = ctypes.c_int
+_libhip.hipMemcpyToSymbol.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t, ctypes.c_int]
 
 
 hipSuccess = 0
@@ -325,7 +327,7 @@ class HipFunctions(GPUBackend):
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
             hipMemcpyHostToDevice = 1
-            status = _libhip.hipMemcpyToSymbol(_libhip.HIP_SYMBOL(symbol_string), v_c, v.nbytes, 0, hipMemcpyHostToDevice)
+            status = _libhip.hipMemcpyToSymbol(symbol_string, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
             hip.hipCheckStatus(status)
 
     def copy_shared_memory_args(self, smem_args):
