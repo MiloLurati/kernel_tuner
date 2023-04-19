@@ -122,7 +122,7 @@ def test_copy_constant_memory_args():
     print(f'gpu_args.field0 = {gpu_args.field0}')
     dev.memcpy_dtoh(output, gpu_args.field0)
     print(f'output = {output}')
-    assert(my_constant_data == output)
+    assert(my_constant_data == output).all()
 
 def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):
     pass
