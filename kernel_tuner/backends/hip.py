@@ -316,6 +316,7 @@ class HipFunctions(GPUBackend):
         """
         logging.debug("HipFunction copy_constant_memory_args called")
         logging.debug("current module: " + str(self.current_module))
+        print(f'current module: {self.current_module}')
 
         for k, v in cmem_args.items():
             #Format arguments, call hipModuleGetGlobal, and check return status
