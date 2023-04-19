@@ -145,7 +145,6 @@ class HipFunctions(GPUBackend):
                     device_ptr = hip.hipMalloc(arg.nbytes)
                     data_ctypes = arg.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
                     hip.hipMemcpy_htod(device_ptr, data_ctypes, arg.nbytes)
-                    print(f'device_ptr = {device_ptr}')
                     ctype_args.append(device_ptr)
                 else:
                     raise TypeError("unknown dtype for ndarray")  

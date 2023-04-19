@@ -117,7 +117,7 @@ def test_copy_constant_memory_args():
     gpu_args = dev.ready_argument_list([output])
     threads = (100, 1, 1)
     grid = (1, 1, 1)
-    print(f'gpu_args[0] = {gpu_args[0]}')
+    print(f'gpu_args.field0 = {gpu_args.field0}')
     dev.run_kernel(kernel, gpu_args, threads, grid)
     dev.memcpy_dtoh(output, gpu_args[0])
     for i, arg in enumerate(output):
