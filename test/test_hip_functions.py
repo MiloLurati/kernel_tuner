@@ -118,6 +118,8 @@ def test_copy_constant_memory_args():
     threads = (100, 1, 1)
     grid = (1, 1, 1)
     dev.run_kernel(kernel, gpu_args, threads, grid)
+    for i, arg in enumerate(gpu_args):
+        print(f'gpu_args[{i}] = {arg}')
     np_output = np.ctypeslib.as_array((gpu_args[0]))
     print(np_output)
     assert(my_constant_data == np_output)
