@@ -318,10 +318,12 @@ class HipFunctions(GPUBackend):
         logging.debug("current module: " + str(self.current_module))
 
         for k, v in cmem_args.items():
+            #Format arguments, call hipModuleGetGlobal, and check return status
             symbol_string = ctypes.c_char_p(k.encode('utf-8'))
             symbol = ctypes.c_void_p()
             symbol_ptr = ctypes.POINTER(ctypes.c_void_p)(symbol)
             size_kernel = ctypes.c_size_t(0)
+
             size_kernel_ptr = ctypes.POINTER(ctypes.c_size_t)(size_kernel)
             status = _libhip.hipModuleGetGlobal(symbol_ptr, size_kernel_ptr, self.current_module, symbol_string)
             hip.hipCheckStatus(status)
@@ -329,10 +331,13 @@ class HipFunctions(GPUBackend):
             print(f'symbol_ptr.contents = {symbol_ptr.contents}')
             print(f'size_kernel = {size_kernel_ptr}')
             print(f'size_kernel.contents = {size_kernel_ptr.contents}')
+
+            #Format arguments, call hipMemcpyToSymbol, and check return status
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
             hipMemcpyHostToDevice = 1
-            status = _libhip.hipMemcpyToSymbol(symbol_ptr.contents, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
+
+            status = _libhip.hipMemcpyToSymbol(symbol_ptr, v_c, v.nbytes, 0, hipMemcpyHostToDevice)
             hip.hipCheckStatus(status)
 
     def copy_shared_memory_args(self, smem_args):
