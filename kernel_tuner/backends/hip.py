@@ -317,7 +317,7 @@ class HipFunctions(GPUBackend):
 
         for k, v in cmem_args.items():
             symbol = ctypes.c_void_p
-            size_kernel = ctypes.c_size_t
+            size_kernel = ctypes.POINTER(ctypes.c_size_t)
             status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, str.encode(k))
             hip.hipCheckStatus(status)
             dtype_str = str(v.dtype)
