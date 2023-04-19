@@ -316,7 +316,7 @@ class HipFunctions(GPUBackend):
         logging.debug("current module: " + str(self.current_module))
 
         for k, v in cmem_args.items():
-            symbol = ctypes.POINTER(_libhip.hipDeviceptr_t)()
+            symbol = ctypes.POINTER(ctypes.c_void_p)
             size_kernel = ctypes.POINTER(ctypes.c_size_t)
             status = _libhip.hipModuleGetGlobal(symbol, size_kernel, self.current_module, str.encode(k))
             hip.hipCheckStatus(status)
