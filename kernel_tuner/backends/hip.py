@@ -326,6 +326,8 @@ class HipFunctions(GPUBackend):
             hip.hipCheckStatus(status)
             print(f'symbol_ptr = {symbol_ptr}')
             print(f'symbol_ptr.contents = {symbol_ptr.contents}')
+            print(f'size_kernel = {size_kernel}')
+            print(f'size_kernel.contents = {size_kernel.contents}')
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
             hipMemcpyHostToDevice = 1
