@@ -322,6 +322,7 @@ class HipFunctions(GPUBackend):
             hip.hipCheckStatus(status)
             dtype_str = str(v.dtype)
             v_c = v.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
+            print(f'symbol = {symbol} --> {type(symbol)}')
             hip.hipMemcpy_htod(symbol, v_c, v.nbytes)
 
     def copy_shared_memory_args(self, smem_args):
