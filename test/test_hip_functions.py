@@ -4,6 +4,7 @@ from .context import skip_if_no_pyhip
 
 import pytest
 import kernel_tuner
+from kernel_tuner import tune_kernel
 from kernel_tuner.backends import hip as kt_hip
 from kernel_tuner.core import KernelSource, KernelInstance
 
@@ -125,6 +126,18 @@ def test_copy_constant_memory_args():
 
     assert(my_constant_data == output).all()
 
-def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):
-    pass
+@skip_if_no_pyhip
+def test_smem_args(env):
+    result, _ = tune_kernel(*env,
+                            smem_args=dict(size="block_size_x*4"),
+                            verbose=True)
+    tune_params = env[-1]
+    assert len(result) == len(tune_params["block_size_x"])
+    result, _ = tune_kernel(
+        *env,
+        smem_args=dict(size=lambda p: p['block_size_x'] * 4),
+        verbose=True)
+    tune_params = env[-1]
+    assert len(result) == len(tune_params["block_size_x"])
+
 
