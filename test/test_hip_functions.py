@@ -56,7 +56,7 @@ def test_compile():
     """
 
     kernel_name = "vector_add"
-    kernel_sources = KernelSource(kernel_name, kernel_string, "cuda")
+    kernel_sources = KernelSource(kernel_name, kernel_string, "HIP")
     kernel_instance = KernelInstance(kernel_name, kernel_sources, kernel_string, [], None, None, dict(), [])
     dev = kt_hip.HipFunctions(0)
     try:
@@ -91,6 +91,39 @@ def test_memcpy_htod():
     Hipfunc.memcpy_dtoh(output, x_d)
 
     assert all(output == x)
+
+@skip_if_no_pyhip
+def test_copy_constant_memory_args():
+    kernel_string = """
+    __constant__ float my_constant_data[100];
+    __global__ void copy_data_kernel(float* output) {
+        int idx = threadIdx.x + blockIdx.x * blockDim.x;
+        if (idx < 100) {
+            output[idx] = my_constant_data[idx];
+        }
+    }
+    """
+
+    my_constant_data = np.full(100, 23).astype(np.float32)
+    cmem_args = {'my_constant_data': my_constant_data}
+
+    kernel_name = "copy_data_kernel"
+    kernel_sources = KernelSource(kernel_name, kernel_string, "HIP")
+    kernel_instance = KernelInstance(kernel_name, kernel_sources, kernel_string, [], None, None, dict(), [])
+    dev = kt_hip.HipFunctions(0)
+    try:
+        kernel = dev.compile(kernel_instance)
+    except Exception as e:
+        pytest.fail("Did not expect any exception:" + str(e))
+    dev.copy_constant_memory_args(cmem_args)
+    output = np.full(100, 0).astype(np.float32)
+    gpu_args = dev.ready_argument_list([output])
+    threads = (100, 1, 1)
+    grid = (1, 1, 1)
+    dev.run_kernel(kernel, gpu_args, threads, grid)
+    np_output = np.ctypeslib.as_array((gpu_args[0]))
+    print(np_output)
+    assert(my_constant_data == np_output)
 
 def dummy_func(a, b, block=0, grid=0, stream=None, shared=0, texrefs=None):
     pass
