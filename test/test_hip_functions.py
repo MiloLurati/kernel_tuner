@@ -1,6 +1,7 @@
 import numpy as np
 import ctypes
 from .context import skip_if_no_pyhip
+from collections import OrderedDict
 
 import pytest
 import kernel_tuner
