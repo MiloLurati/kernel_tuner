@@ -125,11 +125,13 @@ is not yet available on PyPI, meaning we will have to install it from GitHub.
 Clone the GitHub repo:
 
 .. code-block:: bash
+
     git clone https://github.com/jatinx/PyHIP
 
 Set the PYTHONPATH:
 
 .. code-block:: bash
+    
     export PYTHONPATH=/path/to/pyhip:$PYTHONPATH
 
 Installing the git version
