@@ -181,7 +181,7 @@ class HipFunctions(GPUBackend):
         plat = hip.hipGetPlatformName()
         if plat == "amd":
             hiprtc.hiprtcCompileProgram(
-                kernel_ptr, [f'--offload-arch={self.hipProps.gcnArchName()}'])
+                kernel_ptr, [f'--offload-arch={self.hipProps.gcnArchName}'])
         else:
             hiprtc.hiprtcCompileProgram(kernel_ptr, [])
         
