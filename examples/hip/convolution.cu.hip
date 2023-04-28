@@ -35,7 +35,7 @@
 
 /*
  * If requested, we can use the __ldg directive to load data through the
- * read-only cache.
+ * read-only cache. 
  */
 #define USE_READ_ONLY_CACHE read_only
 #if USE_READ_ONLY_CACHE == 1
@@ -53,7 +53,7 @@ __constant__ float d_filter[33*33]; //large enough for the largest filter
  * padding columns are only inserted when block_size_x is not a multiple of 32 (the assumed number of memory banks)
  * and when the width of the data needed is not a multiple of 32. The latter is because some filter_widths never
  * cause bank conflicts.
- *
+ * 
  * If not passed as a tunable parameter, padding is on by default
  */
 #define shared_mem_width (block_size_x*tile_size_x+border_width)
@@ -114,7 +114,7 @@ __global__ void convolution_kernel(float *output, float *input, float *filter) {
         for (int j=0; j < filter_width; j++) {
 
             #pragma unroll
-            for (int yi=0; yi<tile_size_y; yi++) {
+            for (int yi=0; yi<tile_size_y; yi++) {   
                 #pragma unroll
                 for (int xi=0; xi<tile_size_x; xi++) {
                     sum[yi][xi] += sh_input[ty+yi*block_size_y+i][tx+xi*block_size_x+j] * d_filter[i*filter_width+j];
@@ -126,7 +126,7 @@ __global__ void convolution_kernel(float *output, float *input, float *filter) {
 
     //store results to global memory
     #pragma unroll
-    for (int yi=0; yi<tile_size_y; yi++) {
+    for (int yi=0; yi<tile_size_y; yi++) {   
         #pragma unroll
         for (int xi=0; xi<tile_size_x; xi++) {
             #if ((image_height%(block_size_y*tile_size_y)!=0) || (image_width%(block_size_x*tile_size_x)!=0))
