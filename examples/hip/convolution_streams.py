@@ -59,7 +59,7 @@ def tune():
     result = kernel_tuner.tune_kernel("convolution_streams", ['convolution_streams.cu', 'convolution.cu'],
         problem_size, args, tune_params,
         grid_div_y=grid_div_y, grid_div_x=grid_div_x, restrictions=restrict, answer=answer, verbose=True, lang="C",
-        compiler_options=["-arch=sm_52"])
+        compiler="hipcc")
 
     return result
 
