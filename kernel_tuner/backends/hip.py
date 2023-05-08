@@ -163,7 +163,7 @@ class HipFunctions(GPUBackend):
 
         except Exception as e:
             log = hiprtc.hiprtcGetProgramLog(kernel_ptr)
-            print(log.decode("utf-8"))
+            print(log)
             raise e
         
         return kernel
