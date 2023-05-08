@@ -150,10 +150,13 @@ class HipFunctions(GPUBackend):
             #Compile based on device (Not yet tested for non-AMD devices)
             plat = hip.hipGetPlatformName()
             if plat == "amd":
-                hiprtc.hiprtcCompileProgram(
-                    kernel_ptr, [f'--offload-arch={self.hipProps.gcnArchName} {self.compiler_options}'])
+                options_list = [f'--offload-arch={self.hipProps.gcnArchName}']
+                options_list.extend(self.compiler_options.split())
+                hiprtc.hiprtcCompileProgram(kernel_ptr, options_list)
             else:
-                hiprtc.hiprtcCompileProgram(kernel_ptr, [])
+                options_list = []
+                options_list.extend(self.compiler_options.split())
+                hiprtc.hiprtcCompileProgram(kernel_ptr, options_list)
             
             #Get module and kernel from compiled kernel string
             code = hiprtc.hiprtcGetCode(kernel_ptr)
