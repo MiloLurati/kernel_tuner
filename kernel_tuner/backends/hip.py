@@ -151,11 +151,11 @@ class HipFunctions(GPUBackend):
             plat = hip.hipGetPlatformName()
             if plat == "amd":
                 options_list = [f'--offload-arch={self.hipProps.gcnArchName}']
-                options_list.extend(self.compiler_options.split())
+                options_list.extend(self.compiler_options)
                 hiprtc.hiprtcCompileProgram(kernel_ptr, options_list)
             else:
                 options_list = []
-                options_list.extend(self.compiler_options.split())
+                options_list.extend(self.compiler_options)
                 hiprtc.hiprtcCompileProgram(kernel_ptr, options_list)
             
             #Get module and kernel from compiled kernel string
