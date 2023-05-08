@@ -465,8 +465,8 @@ class DeviceInterface(object):
                 print("Error while compiling or benchmarking, see source files: " + " ".join(temp_filenames))
                 raise e
 
-        #clean up any temporary files, if no error occured
-        instance.delete_temp_files()
+            #clean up any temporary files, if no error occured
+            instance.delete_temp_files()
 
         result['compile_time'] = last_compilation_time or 0
         result['verification_time'] = last_verification_time or 0
