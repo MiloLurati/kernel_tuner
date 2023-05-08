@@ -160,11 +160,11 @@ class HipFunctions(GPUBackend):
             module = hip.hipModuleLoadData(code)
             self.current_module = module
             kernel = hip.hipModuleGetFunction(module, kernel_name)
-            
-        except RuntimeError as re:
+
+        exceptException as e:
             log = hip.hiprtcGetProgramLog(kernel_ptr)
             print(log.decode("utf-8"))
-            raise re
+            raise e
         
         return kernel
     
