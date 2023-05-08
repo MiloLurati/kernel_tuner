@@ -146,19 +146,25 @@ class HipFunctions(GPUBackend):
             kernel_string = 'extern "C" {\n' + kernel_string + "\n}"
         kernel_ptr = hiprtc.hiprtcCreateProgram(kernel_string, kernel_name, [], [])
         
-        #Compile based on device (Not yet tested for non-AMD devices)
-        plat = hip.hipGetPlatformName()
-        if plat == "amd":
-            hiprtc.hiprtcCompileProgram(
-                kernel_ptr, [f'--offload-arch={self.hipProps.gcnArchName}'])
-        else:
-            hiprtc.hiprtcCompileProgram(kernel_ptr, [])
-        
-        #Get module and kernel from compiled kernel string
-        code = hiprtc.hiprtcGetCode(kernel_ptr)
-        module = hip.hipModuleLoadData(code)
-        self.current_module = module
-        kernel = hip.hipModuleGetFunction(module, kernel_name)
+        try:
+            #Compile based on device (Not yet tested for non-AMD devices)
+            plat = hip.hipGetPlatformName()
+            if plat == "amd":
+                hiprtc.hiprtcCompileProgram(
+                    kernel_ptr, [f'--offload-arch={self.hipProps.gcnArchName}'])
+            else:
+                hiprtc.hiprtcCompileProgram(kernel_ptr, [])
+            
+            #Get module and kernel from compiled kernel string
+            code = hiprtc.hiprtcGetCode(kernel_ptr)
+            module = hip.hipModuleLoadData(code)
+            self.current_module = module
+            kernel = hip.hipModuleGetFunction(module, kernel_name)
+            
+        except RuntimeError as re:
+            log = hip.hiprtcGetProgramLog(kernel_ptr)
+            print(log.decode("utf-8"))
+            raise re
         
         return kernel
     
