@@ -114,6 +114,7 @@ class HipFunctions(GPUBackend):
             # Convert valid non-array arguments to ctypes      
             elif isinstance(arg, np.generic):
                 data_ctypes = dtype_map[dtype_str](arg)
+                logging.debug(f'data_ctypes -> {type(data_ctypes)}')
                 ctype_args.append(data_ctypes)  
 
         # Determine the types of the fields in the structure
