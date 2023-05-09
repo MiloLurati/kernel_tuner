@@ -274,6 +274,8 @@ class HipFunctions(GPUBackend):
         # Format arguments to correct type and perform memory copy
         dtype_str = str(src.dtype)
         src_c = src.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
+        logging.debug(f'dest -> {type(dest)}')
+        logging.debug(f'src_c -> {type(src_c)}')
         hip.hipMemcpy_htod(dest, src_c, src.nbytes)
 
     def copy_constant_memory_args(self, cmem_args):
