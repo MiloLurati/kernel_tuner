@@ -128,6 +128,7 @@ class HipFunctions(GPUBackend):
             def __getitem__(self, key):
                 return self._fields_[key]
         
+        logging.debug(f'ArgListStructure(*ctype_args) = {ArgListStructure(*ctype_args)}')
         return ArgListStructure(*ctype_args)
             
     
