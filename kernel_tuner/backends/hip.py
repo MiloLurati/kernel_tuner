@@ -102,6 +102,7 @@ class HipFunctions(GPUBackend):
         data_ctypes = None
         for arg in arguments:
             dtype_str = str(arg.dtype)
+            logging.debug(f'HIP ready_argument_list: dtype_str -> {type(data_ctypes)}')
             # Allocate space on device for array and convert to ctypes
             if isinstance(arg, np.ndarray):
                 if dtype_str in dtype_map.keys():
