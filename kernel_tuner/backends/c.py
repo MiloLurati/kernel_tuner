@@ -75,23 +75,12 @@ class CFunctions(CompilerBackend):
             if e.errno != errno.ENOENT:
                 raise e
             
-        # check if hipcc is available
-        self.hipcc_available = False
-        try:
-            hipcc_version = str(subprocess.check_output(["hipcc", "--version"]))
-            hipcc_version = hipcc_version.splitlines()[0].split(" ")[-1]
-            self.hipcc_available = True
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise e
 
         # environment info
         env = dict()
         env["CC Version"] = cc_version
         if self.nvcc_available:
             env["NVCC Version"] = nvcc_version
-        if self.hipcc_available:
-            env["HIPCC Version"] = hipcc_version
         env["iterations"] = self.iterations
         env["compiler_options"] = compiler_options
         self.env = env
