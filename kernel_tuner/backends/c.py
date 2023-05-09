@@ -74,7 +74,6 @@ class CFunctions(CompilerBackend):
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise e
-            
 
         # environment info
         env = dict()
