@@ -108,13 +108,14 @@ class HipFunctions(GPUBackend):
                     device_ptr = hip.hipMalloc(arg.nbytes)
                     data_ctypes = arg.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
                     hip.hipMemcpy_htod(device_ptr, data_ctypes, arg.nbytes)
+                    logging.debug(f'HIP ready_argument_list: data_ctypes -> {type(data_ctypes)}')
                     ctype_args.append(device_ptr)
                 else:
                     raise TypeError("unknown dtype for ndarray")  
             # Convert valid non-array arguments to ctypes      
             elif isinstance(arg, np.generic):
                 data_ctypes = dtype_map[dtype_str](arg)
-                logging.debug(f'data_ctypes -> {type(data_ctypes)}')
+                logging.debug(f'HIP ready_argument_list: data_ctypes -> {type(data_ctypes)}')
                 ctype_args.append(data_ctypes)  
 
         # Determine the types of the fields in the structure
