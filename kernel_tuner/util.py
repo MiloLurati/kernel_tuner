@@ -618,8 +618,8 @@ def prepare_kernel_string(kernel_name, kernel_string, params, grid, threads, blo
         v = str(v)
         v = v.replace("\n", "\\\n")
 
-        if "loop_unroll_factor" in k and lang == "CUDA":
-            # this handles the special case that in CUDA
+        if "loop_unroll_factor" in k and lang in ("CUDA", "HIP"):
+            # this handles the special case that in CUDA/HIP
             # pragma unroll loop_unroll_factor, loop_unroll_factor should be a constant integer expression
             # in OpenCL this isn't the case and we can just insert "#define loop_unroll_factor N"
             # using 0 to disable specifying a loop unrolling factor for this loop
@@ -627,8 +627,8 @@ def prepare_kernel_string(kernel_name, kernel_string, params, grid, threads, blo
                 kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*"
             else:
                 kernel_prefix += f"constexpr int {k} = {v};\n"
-        elif "loop_unroll_factor" in k and lang == "HIP" and v == "0":
-            kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*"
+        """elif "loop_unroll_factor" in k and lang == "HIP" and v == "0":
+            kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*""""
         else:
             kernel_prefix += f"#define {k} {v}\n"
 
