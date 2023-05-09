@@ -126,7 +126,8 @@ class HipFunctions(GPUBackend):
         class ArgListStructure(ctypes.Structure):
             _fields_ = [(f'field{i}', t) for i, t in enumerate(field_types)]
             def __getitem__(self, key):
-                return self._fields_[key]
+                #return self._fields_[key]
+                return getattr(self, self._fields_[key][0])
         
         tmp = ArgListStructure(*ctype_args)
         for i, argStr in enumerate(tmp):
