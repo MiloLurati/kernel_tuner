@@ -102,22 +102,18 @@ class HipFunctions(GPUBackend):
         data_ctypes = None
         for arg in arguments:
             dtype_str = str(arg.dtype)
-            logging.debug(f'HIP ready_argument_list: arg -> {type(arg)}')
-            logging.debug(f'HIP ready_argument_list: dtype_str = {dtype_str}')
             # Allocate space on device for array and convert to ctypes
             if isinstance(arg, np.ndarray):
                 if dtype_str in dtype_map.keys():
                     device_ptr = hip.hipMalloc(arg.nbytes)
                     data_ctypes = arg.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
                     hip.hipMemcpy_htod(device_ptr, data_ctypes, arg.nbytes)
-                    logging.debug(f'HIP ready_argument_list: data_ctypes -> {type(data_ctypes)}')
                     ctype_args.append(device_ptr)
                 else:
                     raise TypeError("unknown dtype for ndarray")  
             # Convert valid non-array arguments to ctypes      
             elif isinstance(arg, np.generic):
                 data_ctypes = dtype_map[dtype_str](arg)
-                logging.debug(f'HIP ready_argument_list: data_ctypes -> {type(data_ctypes)}')
                 ctype_args.append(data_ctypes)  
 
         # Determine the types of the fields in the structure
@@ -128,11 +124,6 @@ class HipFunctions(GPUBackend):
             def __getitem__(self, key):
                 return getattr(self, self._fields_[key][0])
         
-        tmp = ArgListStructure(*ctype_args)
-        for i, argStr in enumerate(tmp):
-            logging.debug(f'HIP ready_argument_list: argStr = {argStr}')
-            logging.debug(f'HIP ready_argument_list: tmp[{i}] = {tmp[i]}')
-            logging.debug(f'HIP ready_argument_list: argStr -> {type(argStr)}')
         return ArgListStructure(*ctype_args)
             
     
@@ -283,8 +274,6 @@ class HipFunctions(GPUBackend):
         # Format arguments to correct type and perform memory copy
         dtype_str = str(src.dtype)
         src_c = src.ctypes.data_as(ctypes.POINTER(dtype_map[dtype_str]))
-        logging.debug(f'dest -> {type(dest)}')
-        logging.debug(f'src_c -> {type(src_c)}')
         hip.hipMemcpy_htod(dest, src_c, src.nbytes)
 
     def copy_constant_memory_args(self, cmem_args):
