@@ -627,8 +627,8 @@ def prepare_kernel_string(kernel_name, kernel_string, params, grid, threads, blo
                 kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*"
             else:
                 kernel_prefix += f"constexpr int {k} = {v};\n"
-        """elif "loop_unroll_factor" in k and lang == "HIP" and v == "0":
-            kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*""""
+        #elif "loop_unroll_factor" in k and lang == "HIP" and v == "0":
+        #    kernel_string = re.sub(r"\n\s*#pragma\s+unroll\s+" + k, "\n", kernel_string)    # + r"[^\S]*"
         else:
             kernel_prefix += f"#define {k} {v}\n"
 
