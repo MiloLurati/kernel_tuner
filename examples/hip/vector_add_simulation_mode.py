@@ -31,7 +31,7 @@ def tune():
     tune_params = OrderedDict()
     tune_params["block_size_x"] = [128+64*i for i in range(15)]
 
-    filename = "vector_add.json"
+    filename = "vector_add_cache.json"
     if os.path.isfile(filename):
         results, env = tune_kernel("vector_add", kernel_string, size, args, tune_params, 
                                 strategy="simulated_annealing",
