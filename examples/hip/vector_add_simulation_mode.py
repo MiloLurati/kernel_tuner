@@ -40,7 +40,6 @@ def tune():
         # Store the tuning results in an output file
         store_output_file("vector_add_simulated_annealing.json", results, tune_params)
 
-        return results
     else:
         print(f"{filename} does not exist in the directory, run vector_add.py first.")
 
