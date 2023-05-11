@@ -6,6 +6,7 @@ from kernel_tuner import tune_kernel
 from kernel_tuner.file_utils import store_output_file, store_metadata_file
 import logging
 from collections import OrderedDict
+import os
 
 def tune():
 
@@ -30,14 +31,18 @@ def tune():
     tune_params = OrderedDict()
     tune_params["block_size_x"] = [128+64*i for i in range(15)]
 
-    results, env = tune_kernel("vector_add", kernel_string, size, args, tune_params, 
-                               strategy="simulated_annealing",
-                               lang="HIP", simulation_mode=True, cache="vector_add.json")
+    filename = "vector_add.json"
+    if os.path.isfile(filename):
+        results, env = tune_kernel("vector_add", kernel_string, size, args, tune_params, 
+                                strategy="simulated_annealing",
+                                lang="HIP", simulation_mode=True, cache="vector_add.json")
 
-    # Store the tuning results in an output file
-    store_output_file("vector_add_B_NM.json", results, tune_params)
+        # Store the tuning results in an output file
+        store_output_file("vector_add_simulated_annealing.json", results, tune_params)
 
-    return results
+        return results
+    else:
+        print(f"{filename} does not exist in the directory, run vector_add.py first.")
 
 
 if __name__ == "__main__":
