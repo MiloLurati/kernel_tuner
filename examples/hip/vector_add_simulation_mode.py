@@ -34,7 +34,7 @@ def tune():
     filename = "vector_add_cache.json"
     if os.path.isfile(filename):
         results, env = tune_kernel("vector_add", kernel_string, size, args, tune_params, 
-                                strategy="firefly_algorithm",
+                                strategy="random_sample",  strategy_options=dict(max_fevals=10),
                                 lang="HIP", simulation_mode=True, cache="vector_add_cache.json")
 
         # Store the tuning results in an output file
