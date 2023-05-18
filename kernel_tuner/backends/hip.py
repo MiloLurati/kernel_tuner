@@ -65,7 +65,7 @@ class HipFunctions(GPUBackend):
         env["device_name"] = self.name
         env["iterations"] = self.iterations
         env["compiler_options"] = compiler_options
-        env["device_properties"] = self.hipProps
+        #env["device_properties"] = self.hipProps #TypeError when trying to save env to JSON
         self.env = env
 
         # create a stream and events

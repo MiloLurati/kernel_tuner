@@ -84,7 +84,6 @@ def store_output_file(output_filename, results, tune_params, objective="time"):
     for result in results:
 
         out = {}
-
         out["timestamp"] = result["timestamp"]
         out["configuration"] = {
             k: v
@@ -98,7 +97,10 @@ def store_output_file(output_filename, results, tune_params, objective="time"):
         timings["framework"] = result["framework_time"]
         timings["search_algorithm"] = result["strategy_time"]
         timings["validation"] = result["verification_time"]
-        timings["runtimes"] = result["times"]
+        if not "times" in result:                               #TEMP HACK
+            timings["runtimes"] = []
+        else:
+            timings["runtimes"] = result["times"]
         out["times"] = timings
 
         # encode the validity of the configuration
