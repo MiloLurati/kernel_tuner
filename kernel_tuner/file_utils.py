@@ -105,7 +105,7 @@ def store_output_file(output_filename: str, results, tune_params, objective="tim
         timings["validation"] = result["verification_time"]
         if "times" in result:
             timings["runtimes"] = result["times"]
-        else:                                                   # TEMP HACK
+        else:
             timings["runtimes"] = []
         out["times"] = timings
 

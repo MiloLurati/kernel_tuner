@@ -37,9 +37,6 @@ def tune():
                                 strategy="random_sample",  strategy_options=dict(max_fevals=10),
                                 lang="HIP", simulation_mode=True, cache="vector_add_cache.json")
 
-        # Store the tuning results in an output file
-        #store_output_file("vector_add_simulated_annealing.json", results, tune_params)
-
     else:
         print(f"{filename} does not exist in the directory, run vector_add.py first.")
 
