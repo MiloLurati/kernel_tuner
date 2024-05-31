@@ -308,7 +308,7 @@ class NVMLObserver(BenchmarkObserver):
     def __init__(
         self,
         observables,
-        device=0,
+        device=[0],
         save_all=False,
         nvidia_smi_fallback=None,
         use_locked_clocks=False,
@@ -324,14 +324,19 @@ class NVMLObserver(BenchmarkObserver):
             "use_locked_clocks": use_locked_clocks,
             "continous_duration": continous_duration
         }
-        if nvidia_smi_fallback:
-            self.nvml = nvml(
-                device,
-                nvidia_smi_fallback=nvidia_smi_fallback,
-                use_locked_clocks=use_locked_clocks,
-            )
-        else:
-            self.nvml = nvml(device, use_locked_clocks=use_locked_clocks)
+        self.nvml_instances = []
+        
+        for dev in device:
+            if nvidia_smi_fallback:
+                nvml_instance = nvml(
+                    dev,
+                    nvidia_smi_fallback=nvidia_smi_fallback,
+                    use_locked_clocks=use_locked_clocks,
+                )
+            else:
+                nvml_instance = nvml(dev, use_locked_clocks=use_locked_clocks)
+            self.nvml_instances.append(nvml_instance)
+        
         self.save_all = save_all
 
         supported = [
@@ -353,7 +358,10 @@ class NVMLObserver(BenchmarkObserver):
         if any([obs in self.needs_power for obs in observables]):
             self.measure_power = True
             power_observables = [obs for obs in observables if obs in self.needs_power]
-            self.continuous_observer = NVMLPowerObserver(power_observables, self, self.nvml, continous_duration)
+            self.continuous_observer = NVMLPowerObserver(power_observables, self, self.nvml_instances, continous_duration)
+        
+        # Initialize results for each GPU
+        self.results = {gpu_id: {obs + "s": [] for obs in self.observables} for gpu_id in range(len(self.nvml_instances))}
 
         # remove power observables
         self.observables = [obs for obs in observables if obs not in self.needs_power]
@@ -364,64 +372,62 @@ class NVMLObserver(BenchmarkObserver):
             self.record_gr_voltage = True
             self.gr_voltage_readings = []
 
-        self.results = {}
-        for obs in self.observables:
-            self.results[obs + "s"] = []
-
         self.during_obs = [obs for obs in observables if obs in ["core_freq", "mem_freq", "temperature"]]
-        self.iteration = {obs: [] for obs in self.during_obs}
+        self.iteration = {gpu_id: {obs: [] for obs in self.during_obs} for gpu_id in range(len(self.nvml_instances))}
 
     def before_start(self):
-        # clear results of the observables for next measurement
-        self.iteration = {obs: [] for obs in self.during_obs}
+        # Clear results of the observables for next measurement for each GPU
+        self.iteration = {gpu_id: {obs: [] for obs in self.during_obs} for gpu_id in range(len(self.nvml_instances))}
         if self.record_gr_voltage:
             self.gr_voltage_readings = []
 
     def after_start(self):
         self.t0 = time.perf_counter()
-        # ensure during is called at least once
+        # Ensure during is called at least once
         self.during()
 
     def during(self):
-        if "temperature" in self.observables:
-            self.iteration["temperature"].append(self.nvml.temperature)
-        if "core_freq" in self.observables:
-            self.iteration["core_freq"].append(self.nvml.gr_clock)
-        if "mem_freq" in self.observables:
-            self.iteration["mem_freq"].append(self.nvml.mem_clock)
-        if self.record_gr_voltage:
-            self.gr_voltage_readings.append([time.perf_counter() - self.t0, self.nvml.gr_voltage()])
+        for gpu_id, nvml_instance in enumerate(self.nvml_instances):
+            if "temperature" in self.observables:
+                self.iteration[gpu_id]["temperature"].append(nvml_instance.temperature)
+            if "core_freq" in self.observables:
+                self.iteration[gpu_id]["core_freq"].append(nvml_instance.gr_clock)
+            if "mem_freq" in self.observables:
+                self.iteration[gpu_id]["mem_freq"].append(nvml_instance.mem_clock)
+            if self.record_gr_voltage:
+                self.gr_voltage_readings.append([time.perf_counter() - self.t0, nvml_instance.gr_voltage()])
 
     def after_finish(self):
-        if "temperature" in self.observables:
-            self.results["temperatures"].append(np.average(self.iteration["temperature"]))
-        if "core_freq" in self.observables:
-            self.results["core_freqs"].append(np.average(self.iteration["core_freq"]))
-        if "mem_freq" in self.observables:
-            self.results["mem_freqs"].append(np.average(self.iteration["mem_freq"]))
+        for gpu_id in range(len(self.nvml_instances)):
+            if "temperature" in self.observables:
+                self.results[gpu_id]["temperatures"].append(np.average(self.iteration[gpu_id]["temperature"]))
+            if "core_freq" in self.observables:
+                self.results[gpu_id]["core_freqs"].append(np.average(self.iteration[gpu_id]["core_freq"]))
+            if "mem_freq" in self.observables:
+                self.results[gpu_id]["mem_freqs"].append(np.average(self.iteration[gpu_id]["mem_freq"]))
 
-        if "gr_voltage" in self.observables:
-            execution_time = time.time() - self.t0
-            gr_voltage_readings = self.gr_voltage_readings
-            gr_voltage_readings = [[0.0, gr_voltage_readings[0][1]]] + gr_voltage_readings
-            gr_voltage_readings = gr_voltage_readings + [[execution_time, gr_voltage_readings[-1][1]]]
-            # time in s, graphics voltage in millivolts
-            self.results["gr_voltages"].append(np.average(gr_voltage_readings[:][:][1]))
+            if "gr_voltage" in self.observables:
+                execution_time = time.time() - self.t0
+                gr_voltage_readings = self.gr_voltage_readings
+                gr_voltage_readings = [[0.0, gr_voltage_readings[0][1]]] + gr_voltage_readings
+                gr_voltage_readings = gr_voltage_readings + [[execution_time, gr_voltage_readings[-1][1]]]
+                # time in s, graphics voltage in millivolts
+                self.results[gpu_id]["gr_voltages"].append(np.average(gr_voltage_readings[:][:][1]))
 
     def get_results(self):
-        averaged_results = {}
+        averaged_results = {gpu_id: {} for gpu_id in range(len(self.nvml_instances))}
 
-        # return averaged results, except when save_all is True
-        for obs in self.observables:
-            # save all information, if the user requested
-            if self.save_all:
-                averaged_results[obs + "s"] = self.results[obs + "s"]
-            # save averaged results, default
-            averaged_results[obs] = np.average(self.results[obs + "s"])
+        # Return averaged results for each GPU
+        for gpu_id in range(len(self.nvml_instances)):
+            for obs in self.observables:
+                if self.save_all:
+                    averaged_results[gpu_id][obs + "s"] = self.results[gpu_id][obs + "s"]
+                else:
+                    averaged_results[gpu_id][obs] = np.average(self.results[gpu_id][obs + "s"])
 
-        # clear results for next round
-        for obs in self.observables:
-            self.results[obs + "s"] = []
+            # Clear results for next round
+            for obs in self.observables:
+                self.results[gpu_id][obs + "s"] = []
 
         return averaged_results
 
@@ -429,16 +435,16 @@ class NVMLObserver(BenchmarkObserver):
 class NVMLPowerObserver(ContinuousObserver):
     """Observer that measures power using NVML and continuous benchmarking."""
 
-    def __init__(self, observables, parent, nvml_instance, continous_duration=1):
+    def __init__(self, observables, parent, nvml_instances, continuous_duration=1):
         self.parent = parent
-        self.nvml = nvml_instance
+        self.nvml_instances = nvml_instances
 
         # needed for re-initializing observer on ray actor
         self.init_arguments = {
             "observables": observables,
             "parent": parent,
-            "nvml_instance": nvml_instance,
-            "continous_duration": continous_duration
+            "nvml_instances": nvml_instances,
+            "continuous_duration": continuous_duration
         }
 
         supported = ["power_readings", "nvml_power", "nvml_energy"]
@@ -448,11 +454,11 @@ class NVMLPowerObserver(ContinuousObserver):
         self.observables = observables
 
         # duration in seconds
-        self.continuous_duration = continous_duration
+        self.continuous_duration = continuous_duration
 
-        self.power = 0
-        self.energy = 0
-        self.power_readings = []
+        self.power = {i: 0 for i in range(len(nvml_instances))}
+        self.energy = {i: 0 for i in range(len(nvml_instances))}
+        self.power_readings = {i: [] for i in range(len(nvml_instances))}
         self.t0 = 0
 
         # results from the last iteration-based benchmark
@@ -460,9 +466,9 @@ class NVMLPowerObserver(ContinuousObserver):
 
     def before_start(self):
         self.parent.before_start()
-        self.power = 0
-        self.energy = 0
-        self.power_readings = []
+        self.power = {i: 0 for i in range(len(self.nvml_instances))}
+        self.energy = {i: 0 for i in range(len(self.nvml_instances))}
+        self.power_readings = {i: [] for i in range(len(self.nvml_instances))}
 
     def after_start(self):
         self.parent.after_start()
@@ -470,36 +476,36 @@ class NVMLPowerObserver(ContinuousObserver):
 
     def during(self):
         self.parent.during()
-        power_usage = self.nvml.pwr_usage()
-        timestamp = time.perf_counter() - self.t0
-        # only store the result if we get a new measurement from NVML
-        if len(self.power_readings) == 0 or (
-            self.power_readings[-1][1] != power_usage or timestamp - self.power_readings[-1][0] > 0.01
-        ):
-            self.power_readings.append([timestamp, power_usage])
+        for i, nvml in enumerate(self.nvml_instances):
+            power_usage = nvml.pwr_usage()
+            timestamp = time.perf_counter() - self.t0
+            # only store the result if we get a new measurement from NVML
+            if len(self.power_readings[i]) == 0 or (
+                self.power_readings[i][-1][1] != power_usage or timestamp - self.power_readings[i][-1][0] > 0.01
+            ):
+                self.power_readings[i].append([timestamp, power_usage])
 
     def after_finish(self):
         self.parent.after_finish()
         # safeguard in case we have no measurements, perhaps the kernel was too short to measure anything
-        if not self.power_readings:
-            return
+        for i in range(len(self.nvml_instances)):
+            if not self.power_readings[i]:
+                continue
 
-        # convert to seconds from milliseconds
-        execution_time = self.results["time"] / 1e3
-        self.power = np.median([d[1] / 1e3 for d in self.power_readings])
-        self.energy = self.power * execution_time
+            # convert to seconds from milliseconds
+            execution_time = self.results["time"] / 1e3
+            self.power[i] = np.median([d[1] / 1e3 for d in self.power_readings[i]])
+            self.energy[i] = self.power[i] * execution_time
 
     def get_results(self):
         results = self.parent.get_results()
-        keys = list(results.keys())
-        for key in keys:
-            results["pwr_" + key] = results.pop(key)
-        if "nvml_energy" in self.observables:
-            results["nvml_energy"] = self.energy
-        if "nvml_power" in self.observables:
-            results["nvml_power"] = self.power
-        if "power_readings" in self.observables:
-            results["power_readings"] = self.power_readings
+        for gpu_id in range(len(self.nvml_instances)):
+            if "nvml_energy" in self.observables:
+                results[gpu_id]["nvml_energy"] = self.energy[gpu_id]
+            if "nvml_power" in self.observables:
+                results[gpu_id]["nvml_power"] = self.power[gpu_id]
+            if "power_readings" in self.observables:
+                results[gpu_id]["power_readings"] = self.power_readings[gpu_id]
         return results
 
 

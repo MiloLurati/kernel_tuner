@@ -322,7 +322,7 @@ class DeviceInterface(object):
         if observers:
             for obs in observers:
                 if isinstance(obs, NVMLObserver):
-                    self.nvml = obs.nvml
+                    self.nvml_instances = obs.nvml_instances
                     self.use_nvml = True
                 if hasattr(obs, "continuous_observer"):
                     self.continuous_observers.append(obs.continuous_observer)
@@ -392,18 +392,17 @@ class DeviceInterface(object):
             result.update(obs.get_results())
 
     def set_nvml_parameters(self, instance):
-        """Set the NVML parameters. Avoids setting time leaking into benchmark time."""
+        """Set the NVML parameters for all GPUs. Avoids setting time leaking into benchmark time."""
         if self.use_nvml:
-            if "nvml_pwr_limit" in instance.params:
-                new_limit = int(
-                    instance.params["nvml_pwr_limit"] * 1000
-                )  # user specifies in Watt, but nvml uses milliWatt
-                if self.nvml.pwr_limit != new_limit:
-                    self.nvml.pwr_limit = new_limit
-            if "nvml_gr_clock" in instance.params:
-                self.nvml.gr_clock = instance.params["nvml_gr_clock"]
-            if "nvml_mem_clock" in instance.params:
-                self.nvml.mem_clock = instance.params["nvml_mem_clock"]
+            for nvml_instance in self.nvml_instances:
+                if "nvml_pwr_limit" in instance.params:
+                    new_limit = int(instance.params["nvml_pwr_limit"] * 1000)  # user specifies in Watt, but nvml uses milliWatt
+                    if nvml_instance.pwr_limit != new_limit:
+                        nvml_instance.pwr_limit = new_limit
+                if "nvml_gr_clock" in instance.params:
+                    nvml_instance.gr_clock = instance.params["nvml_gr_clock"]
+                if "nvml_mem_clock" in instance.params:
+                    nvml_instance.mem_clock = instance.params["nvml_mem_clock"]
 
     def benchmark(self, func, gpu_args, instance, verbose, objective, skip_nvml_setting=False):
         """Benchmark the kernel instance."""

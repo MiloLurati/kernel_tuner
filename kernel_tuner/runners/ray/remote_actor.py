@@ -69,7 +69,7 @@ class RemoteActor():
         self.observers = []
         for (observer, arguments) in observers_type_and_arguments:
             if "device" in arguments:
-                arguments["device"] = self.id
+                arguments["device"] = [self.id]
             if isinstance(observer, RegisterObserver):
                 register_observer = True
             else:
