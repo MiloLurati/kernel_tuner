@@ -1,12 +1,15 @@
 import numpy as np
 import time
 from kernel_tuner.observers.observer import BenchmarkObserver, ContinuousObserver
+
 try:
     import amdsmi
+    print("DEBUG: imported amdsmi")
 except ImportError:
     amdsmi = None
+    print("DEBUG: not imported amdsmi")
 
-class amdsmi:
+class AMDSMIWrapper:
     """Class that gathers the amdsmi functionality for one device."""
 
     def __init__(self, device_id=0):
@@ -20,19 +23,12 @@ class amdsmi:
         amdsmi.amdsmi_shut_down()
 
     def set_clocks(self, mem_clock, gr_clock):
-        try:
-            amdsmi.amdsmi_set_gpu_clk_range(self.dev, gr_clock, gr_clock, amdsmi.AmdSmiClkType.AMDSMI_CLK_TYPE_SYS)
-            amdsmi.amdsmi_set_gpu_clk_range(self.dev, mem_clock, mem_clock, amdsmi.AmdSmiClkType.AMDSMI_CLK_TYPE_MEM)
-        except amdsmi.AmdSmiException as e:
-            print(f"Error setting clock frequencies: {e}")
-
+        amdsmi.amdsmi_set_gpu_clk_range(self.dev, gr_clock, gr_clock, amdsmi.AmdSmiClkType.AMDSMI_CLK_TYPE_SYS)
+        amdsmi.amdsmi_set_gpu_clk_range(self.dev, mem_clock, mem_clock, amdsmi.AmdSmiClkType.AMDSMI_CLK_TYPE_MEM)
 
     def reset_clocks(self):
-        try:
-            amdsmi.amdsmi_set_clk_freq(self.dev, amdsmi.AmdSmiClkType.GFX, 0)
-            amdsmi.amdsmi_set_clk_freq(self.dev, amdsmi.AmdSmiClkType.MEM, 0)
-        except amdsmi.AmdSmiException as e:
-            print(f"Error resetting clock frequencies: {e}")
+        amdsmi.amdsmi_set_clk_freq(self.dev, amdsmi.AmdSmiClkType.GFX, 0)
+        amdsmi.amdsmi_set_clk_freq(self.dev, amdsmi.AmdSmiClkType.MEM, 0)
 
     @property
     def gr_clock(self):
@@ -60,9 +56,9 @@ class AMDSMIObserver(BenchmarkObserver):
         observables,
         device=0,
         save_all=False,
-        use_locked_clocks=False,
         continous_duration=1,
     ):
+        self.amdsmi = AMDSMIWrapper(device_id=device)
         supported = [
             "core_freq",
             "mem_freq",
