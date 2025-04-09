@@ -472,6 +472,9 @@ class DeviceInterface(object):
                 "OUT_OF_RESOURCES",
                 "INVALID_WORK_GROUP_SIZE",
             ]
+            skippable_c_compiler_exceptions = [
+                "C function returned error value",
+            ]
             if any([skip_str in str(e) for skip_str in skippable_exceptions]):
                 logging.debug(
                     "benchmark fails due to runtime failure too many resources required"
@@ -479,6 +482,15 @@ class DeviceInterface(object):
                 if verbose:
                     print(
                         f"skipping config {util.get_instance_string(instance.params)} reason: too many resources requested for launch"
+                    )
+                result[objective] = util.RuntimeFailedConfig()
+            elif any([skip_str in str(e) for skip_str in skippable_c_compiler_exceptions]):
+                logging.debug(
+                    "benchmark fails due to C function returning error value"
+                )
+                if verbose:
+                    print(
+                        f"skipping config {util.get_instance_string(instance.params)} reason: C function returning error value"
                     )
                 result[objective] = util.RuntimeFailedConfig()
             else:
